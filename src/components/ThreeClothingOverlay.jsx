@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
-import ProgrammaticShirt from './ProgrammaticShirt';
+import GltfShirt from './GltfShirt';
 
 // This component updates the position and rotation of the 3D shirt
 // every frame based on the latest MediaPipe pose landmarks.
@@ -89,7 +89,7 @@ const TrackingController = ({ poseLandmarks, shirtColor }) => {
 
   return (
     <group ref={groupRef}>
-       <ProgrammaticShirt color={shirtColor} />
+       <GltfShirt color={shirtColor} />
     </group>
   );
 };
