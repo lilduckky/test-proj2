@@ -2,18 +2,20 @@ import { useRef, useState, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { usePoseDetection } from '../hooks/usePoseDetection';
 import ClothingOverlay from '../components/ClothingOverlay';
-import { ChevronLeft, ChevronRight, Maximize2, Loader2, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, Loader2, ArrowLeft, Bug } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Mirror = () => {
   const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const { isLoaded, poseLandmarks, startDetection } = usePoseDetection(webcamRef);
+
+  const { isLoaded, poseLandmarks, startDetection, error } = usePoseDetection(webcamRef, canvasRef);
 
   const [catalog, setCatalog] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0 });
-
+  const [showDebug, setShowDebug] = useState(true);
 
   useEffect(() => {
     // Fetch mock catalog from our backend (or use mock data directly if backend isn't running)
@@ -32,7 +34,8 @@ const Mirror = () => {
         width: webcamRef.current.video.videoWidth,
         height: webcamRef.current.video.videoHeight
       });
-      startDetection();
+      // Delay start detection slightly to ensure video is fully rendering
+      setTimeout(() => startDetection(), 500);
     }
   };
 
@@ -44,10 +47,8 @@ const Mirror = () => {
       containerRef.current.requestFullscreen().catch(err => {
         console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
       });
-      console.log(true);
     } else {
       document.exitFullscreen();
-      console.log(false);
     }
   };
 
@@ -63,9 +64,18 @@ const Mirror = () => {
         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
           AuraMirror Live
         </h1>
-        <button onClick={toggleFullscreen} className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
-          <Maximize2 className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-4">
+           <button
+             onClick={() => setShowDebug(!showDebug)}
+             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition ${showDebug ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-700 hover:bg-gray-600'}`}
+           >
+             <Bug className="w-4 h-4" />
+             {showDebug ? 'Debug: ON' : 'Debug: OFF'}
+           </button>
+           <button onClick={toggleFullscreen} className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
+             <Maximize2 className="w-5 h-5" />
+           </button>
+        </div>
       </div>
 
       {/* Main Mirror Area */}
@@ -73,10 +83,20 @@ const Mirror = () => {
         ref={containerRef}
         className="flex-grow relative bg-black overflow-hidden flex items-center justify-center"
       >
-        {!isLoaded && (
+        {(!isLoaded || error) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-50">
-            <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-            <p className="text-xl font-medium text-gray-300">Initializing AI Models...</p>
+            {error ? (
+              <div className="text-red-400 max-w-md text-center p-6 bg-red-900/20 border border-red-800 rounded-xl">
+                 <p className="font-bold text-lg mb-2">Error initializing camera or AI</p>
+                 <p className="text-sm">{error}</p>
+                 <p className="text-sm mt-4 text-gray-400">Ensure you have granted camera permissions.</p>
+              </div>
+            ) : (
+              <>
+                 <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+                 <p className="text-xl font-medium text-gray-300">Initializing AI Models...</p>
+              </>
+            )}
           </div>
         )}
 
@@ -93,6 +113,13 @@ const Mirror = () => {
           }}
         />
 
+        {/* Debug Canvas Overlay - Draws the Skeletal Tracking */}
+        <canvas
+           ref={canvasRef}
+           className="absolute inset-0 w-full h-full object-cover pointer-events-none z-10"
+           style={{ opacity: showDebug ? 0.7 : 0 }}
+        />
+
         {/* Dynamic Clothing Overlay */}
         {isLoaded && poseLandmarks && activeItem && (
           <ClothingOverlay
@@ -100,11 +127,12 @@ const Mirror = () => {
             activeItem={activeItem}
             videoWidth={videoDimensions.width}
             videoHeight={videoDimensions.height}
+            showDebug={showDebug}
           />
         )}
 
         {/* UI Overlay - Catalog Controls */}
-        <div className="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 to-transparent flex flex-col items-center">
+        <div className="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 to-transparent flex flex-col items-center z-20">
 
           {activeItem && (
              <div className="mb-6 text-center">
@@ -145,8 +173,6 @@ const Mirror = () => {
               <ChevronRight className="w-8 h-8 text-white group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
-
-
         </div>
 
       </div>

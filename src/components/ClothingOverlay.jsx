@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight }) => {
+const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight, showDebug }) => {
   const [style, setStyle] = useState({ display: 'none' });
 
   useEffect(() => {
-    if (!poseLandmarks || !activeItem) {
+    if (!poseLandmarks || !activeItem || videoWidth === 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStyle({ display: 'none' });
       return;
@@ -18,7 +18,7 @@ const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight })
 
     // Check visibility score before rendering
     if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || leftShoulder.visibility < 0.5 || rightShoulder.visibility < 0.5) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setStyle({ display: 'none' });
       return;
     }
@@ -44,7 +44,7 @@ const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight })
     // Calculate rotation angle if the person is leaning
     const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 180; // normalize
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setStyle({
       position: 'absolute',
       left: `${pixelX}px`,
@@ -56,11 +56,12 @@ const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight })
       transition: 'all 0.1s ease-out', // Smooth out jitter
       pointerEvents: 'none', // Let clicks pass through
       display: 'block',
-      opacity: 0.9,
-      zIndex: 10
+      opacity: showDebug ? 0.6 : 0.9, // Make slightly transparent if debugging
+      zIndex: 15,
+      border: showDebug ? '2px dashed blue' : 'none' // Box to visualize the container bounds
     });
 
-  }, [poseLandmarks, activeItem, videoWidth, videoHeight]);
+  }, [poseLandmarks, activeItem, videoWidth, videoHeight, showDebug]);
 
   if (!activeItem) return null;
 
