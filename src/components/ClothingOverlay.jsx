@@ -5,9 +5,8 @@ const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight })
 
   useEffect(() => {
     if (!poseLandmarks || !activeItem) {
-
       // eslint-disable-next-line react-hooks/set-state-in-effect
-    setStyle({ display: 'none' });
+      setStyle({ display: 'none' });
       return;
     }
 
@@ -16,6 +15,13 @@ const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight })
     const rightShoulder = poseLandmarks[12];
     const leftHip = poseLandmarks[23];
     const rightHip = poseLandmarks[24];
+
+    // Check visibility score before rendering
+    if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || leftShoulder.visibility < 0.5 || rightShoulder.visibility < 0.5) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStyle({ display: 'none' });
+      return;
+    }
 
     // Calculate center point between shoulders to anchor the shirt collar
     const centerX = (leftShoulder.x + rightShoulder.x) / 2;
@@ -38,7 +44,7 @@ const ClothingOverlay = ({ poseLandmarks, activeItem, videoWidth, videoHeight })
     // Calculate rotation angle if the person is leaning
     const angle = Math.atan2(dy, dx) * (180 / Math.PI) - 180; // normalize
 
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStyle({
       position: 'absolute',
       left: `${pixelX}px`,
