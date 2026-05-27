@@ -1,5 +1,6 @@
 
 import { Sparkles, ArrowRight, MonitorPlay } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
@@ -24,9 +25,9 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-lg shadow-blue-200">
-                Request a Demo <ArrowRight className="w-5 h-5" />
-              </button>
+              <Link to="/mirror" className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-lg shadow-blue-200">
+                Launch Mirror Demo <ArrowRight className="w-5 h-5" />
+              </Link>
               <button className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-xl font-semibold transition-all border-2 border-gray-200">
                 <MonitorPlay className="w-5 h-5 text-gray-500" /> Watch Video
               </button>
