@@ -2,6 +2,8 @@ import { useRef, useState, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { usePoseDetection } from '../hooks/usePoseDetection';
 import ClothingOverlay from '../components/ClothingOverlay';
+import ThreeClothingOverlay from '../components/ThreeClothingOverlay';
+import { Layers } from 'lucide-react';
 import { ChevronLeft, ChevronRight, Maximize2, Loader2, ArrowLeft, Bug } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -16,6 +18,7 @@ const Mirror = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0 });
   const [showDebug, setShowDebug] = useState(true);
+  const [is3DMode, setIs3DMode] = useState(true);
 
   useEffect(() => {
     // Fetch mock catalog from our backend (or use mock data directly if backend isn't running)
@@ -72,6 +75,13 @@ const Mirror = () => {
              <Bug className="w-4 h-4" />
              {showDebug ? 'Debug: ON' : 'Debug: OFF'}
            </button>
+           <button
+             onClick={() => setIs3DMode(!is3DMode)}
+             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition ${is3DMode ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'}`}
+           >
+             <Layers className="w-4 h-4" />
+             {is3DMode ? '3D Mode' : '2D Mode'}
+           </button>
            <button onClick={toggleFullscreen} className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
              <Maximize2 className="w-5 h-5" />
            </button>
@@ -122,13 +132,21 @@ const Mirror = () => {
 
         {/* Dynamic Clothing Overlay */}
         {isLoaded && poseLandmarks && activeItem && (
-          <ClothingOverlay
-            poseLandmarks={poseLandmarks}
-            activeItem={activeItem}
-            videoWidth={videoDimensions.width}
-            videoHeight={videoDimensions.height}
-            showDebug={showDebug}
-          />
+          is3DMode ? (
+            <ThreeClothingOverlay
+              poseLandmarks={poseLandmarks}
+              activeItem={activeItem}
+              videoWidth={videoDimensions.width}
+            />
+          ) : (
+            <ClothingOverlay
+              poseLandmarks={poseLandmarks}
+              activeItem={activeItem}
+              videoWidth={videoDimensions.width}
+              videoHeight={videoDimensions.height}
+              showDebug={showDebug}
+            />
+          )
         )}
 
         {/* UI Overlay - Catalog Controls */}
