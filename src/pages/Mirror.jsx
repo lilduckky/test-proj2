@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { usePoseDetection } from '../hooks/usePoseDetection';
 import ClothingOverlay from '../components/ClothingOverlay';
-import { Camera, ChevronLeft, ChevronRight, Maximize2, Loader2, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, Loader2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Mirror = () => {
@@ -146,14 +146,7 @@ const Mirror = () => {
             </button>
           </div>
 
-          <div className="mt-6 flex gap-4">
-            <button className="px-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-full font-bold text-lg shadow-lg flex items-center gap-2 transition">
-              <Camera className="w-5 h-5" /> Take Photo
-            </button>
-            <button className="px-8 py-3 bg-white text-gray-900 hover:bg-gray-200 rounded-full font-bold text-lg shadow-lg transition">
-              Add to Cart
-            </button>
-          </div>
+
         </div>
 
       </div>
